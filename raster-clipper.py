@@ -18,28 +18,28 @@ for root, dirs, files in os.walk(input_folder):
     for filename in files:
         if filename.endswith('.TIF'):
             try:
-                # Construct a full absolute file path to the currently working raster----------------------------------------------
+                # Construct a full absolute file path to the currently working raster-------------------------------------------
                 input_raster_path = os.path.join(root, filename)
 
                 with rasterio.open(input_raster_path) as src:
 
-                    # Reprojecting the basin shapefile to match the original raster's Coordinates----------------------------------
+                    # Reprojecting the basin shapefile to match the original raster's Coordinates-------------------------------
                     basin_shapefile_reprojected = basin_shapefile.to_crs(src.crs)
 
-                    # Clipping the source raster using the reprojected basin shapefile---------------------------------------------
+                    # Clipping the source raster using the reprojected basin shapefile------------------------------------------
                     clipped_raster, _ = mask(src, basin_shapefile_reprojected.geometry, crop=True)
 
-                    # creating a new profile for the output raster matching all metadata of source----------------------------------
+                    # creating a new profile for the output raster matching all metadata of source------------------------------
                     profile = src.profile
 
-                    # updating the profile to make sure the output raster will have same dimension as clipped-----------------------
+                    # updating the profile to make sure the output raster will have same dimension as clipped----------------------
                     profile.update({
                         'height': clipped_raster.shape[1],
                         'width': clipped_raster.shape[2],
                         'transform': src.transform 
                     })
 
-                    # Determine which subdirectory we are working on within the input folder-------------------------------------------
+                    # Determine which subdirectory we are working on within the input folder---------------------------------------
                     relative_subdir = os.path.relpath(root, input_folder)
 
                     # Construct a full path to the output folder where we wanna save---------------------------------------------------
